@@ -1,7 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "ros2_custom_msgs/msg/robot_status.hpp"
 #include <chrono>
-#include <cmath>
 
 using namespace std::chrono_literals;
 
@@ -11,15 +10,15 @@ public:
   StatusPublisher()
   : Node("status_publisher"),
     battery_level_(100.0),
-    mission_count_(0)
+    mission_count_(0),
+    first_run_(true)
   {
     publisher_ = this->create_publisher<ros2_custom_msgs::msg::RobotStatus>(
       "/robot_status", 10);
 
     timer_ = this->create_wall_timer(
       1000ms,
-      std::bind(&StatusPublisher::timer_callback, this)
-    );
+      std::bind(&StatusPublisher::timer_callback, this));
   }
 
 private:
@@ -27,7 +26,11 @@ private:
   {
     auto message = ros2_custom_msgs::msg::RobotStatus();
 
-    // Set fields BEFORE updating values
+    if (!first_run_) {
+      battery_level_ -= 0.5;
+      mission_count_++;
+    }
+
     message.robot_name = "Explorer1";
     message.battery_level = battery_level_;
     message.is_active = true;
@@ -44,9 +47,7 @@ private:
       message.mission_count
     );
 
-    // Update AFTER publishing
-    battery_level_ = std::round((battery_level_ - 0.5) * 100.0) / 100.0;
-    mission_count_++;
+    first_run_ = false;
   }
 
   rclcpp::Publisher<ros2_custom_msgs::msg::RobotStatus>::SharedPtr publisher_;
@@ -54,6 +55,7 @@ private:
 
   double battery_level_;
   int mission_count_;
+  bool first_run_;
 };
 
 int main(int argc, char * argv[])

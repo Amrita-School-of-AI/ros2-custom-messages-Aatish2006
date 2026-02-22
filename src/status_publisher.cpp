@@ -1,6 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "ros2_custom_msgs/msg/robot_status.hpp"
 #include <chrono>
+#include <cmath>
 
 using namespace std::chrono_literals;
 
@@ -26,16 +27,14 @@ private:
   {
     auto message = ros2_custom_msgs::msg::RobotStatus();
 
-    // Set required fields
+    // Set fields BEFORE updating values
     message.robot_name = "Explorer1";
     message.battery_level = battery_level_;
     message.is_active = true;
     message.mission_count = mission_count_;
 
-    // Publish message
     publisher_->publish(message);
 
-    // Exact required logging format
     RCLCPP_INFO(
       this->get_logger(),
       "Robot: %s, Battery: %.2f, Active: %s, Missions: %d",
@@ -45,8 +44,8 @@ private:
       message.mission_count
     );
 
-    // Update AFTER publishing (important)
-    battery_level_ -= 0.5;
+    // Update AFTER publishing
+    battery_level_ = std::round((battery_level_ - 0.5) * 100.0) / 100.0;
     mission_count_++;
   }
 

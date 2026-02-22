@@ -17,7 +17,8 @@ public:
 
     timer_ = this->create_wall_timer(
       1000ms,
-      std::bind(&StatusPublisher::timer_callback, this));
+      std::bind(&StatusPublisher::timer_callback, this)
+    );
   }
 
 private:
@@ -25,19 +26,13 @@ private:
   {
     auto message = ros2_custom_msgs::msg::RobotStatus();
 
-    // Required fixed robot name
+    // Set required fields
     message.robot_name = "Explorer1";
-
-    // Decrement battery first (as required)
-    battery_level_ -= 0.5;
-
-    // Increment mission count first
-    mission_count_++;
-
     message.battery_level = battery_level_;
     message.is_active = true;
     message.mission_count = mission_count_;
 
+    // Publish message
     publisher_->publish(message);
 
     // Exact required logging format
@@ -49,6 +44,10 @@ private:
       message.is_active ? "true" : "false",
       message.mission_count
     );
+
+    // Update AFTER publishing (important)
+    battery_level_ -= 0.5;
+    mission_count_++;
   }
 
   rclcpp::Publisher<ros2_custom_msgs::msg::RobotStatus>::SharedPtr publisher_;

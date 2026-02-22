@@ -32,12 +32,13 @@ private:
 
     publisher_->publish(message);
 
-    RCLCPP_INFO(this->get_logger(),
-      "Robot: %s | Battery: %.2f | Active: %s | Missions: %d",
-      message.robot_name.c_str(),
-      message.battery_level,
-      message.is_active ? "true" : "false",
-      message.mission_count
+    RCLCPP_INFO(
+        this->get_logger(),
+        "Robot: %s, Battery: %.2f, Active: %s, Missions: %d",
+        message.robot_name.c_str(),
+        message.battery_level,
+        message.is_active ? "true" : "false",
+        message.mission_count
     );
 
     battery_level_ -= 0.5;

@@ -9,12 +9,10 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
-# Generate message interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/RobotStatus.msg"
 )
 
-# Create executable
 add_executable(status_publisher src/status_publisher.cpp)
 
 ament_target_dependencies(
@@ -22,7 +20,6 @@ ament_target_dependencies(
   rclcpp
 )
 
-# NEW recommended linking method (Jazzy)
 rosidl_get_typesupport_target(
   cpp_typesupport_target
   ${PROJECT_NAME}
@@ -34,9 +31,11 @@ target_link_libraries(
   ${cpp_typesupport_target}
 )
 
-install(TARGETS
-  status_publisher
+install(
+  TARGETS status_publisher
   DESTINATION lib/${PROJECT_NAME}
 )
+
+ament_export_dependencies(rosidl_default_runtime)
 
 ament_package()

@@ -21,29 +21,32 @@ public:
   }
 
 private:
-  void timer_callback()
-  {
-    auto message = ros2_custom_msgs::msg::RobotStatus();
+    void timer_callback()
+    {
+        auto message = ros2_custom_msgs::msg::RobotStatus();
 
-    message.robot_name = "Explorer1";
-    message.battery_level = battery_level_;
-    message.is_active = true;
-    message.mission_count = mission_count_;
+        message.robot_name = "Explorer1";
 
-    publisher_->publish(message);
+        // Decrement FIRST
+         battery_level_ -= 0.5;
 
-    RCLCPP_INFO(
-        this->get_logger(),
-        "Robot: %s, Battery: %.2f, Active: %s, Missions: %d",
-        message.robot_name.c_str(),
-        message.battery_level,
-        message.is_active ? "true" : "false",
-        message.mission_count
-    );
+        message.battery_level = battery_level_;
+        message.is_active = true;
+        message.mission_count = mission_count_;
 
-    battery_level_ -= 0.5;
-    mission_count_++;
-  }
+        publisher_->publish(message);
+
+        RCLCPP_INFO(
+            this->get_logger(),
+            "Robot: %s, Battery: %.2f, Active: %s, Missions: %d",
+            message.robot_name.c_str(),
+            message.battery_level,
+            message.is_active ? "true" : "false",
+            message.mission_count
+        );
+
+        mission_count_++;
+    }
 
   rclcpp::Publisher<ros2_custom_msgs::msg::RobotStatus>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
